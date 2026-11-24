@@ -1,0 +1,28 @@
+name: gta6test
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # rust-toolchain.toml in the repo pins the version; rustup installs it on first cargo call
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Build release
+        run: cargo build --release -p victory
+
+      - name: Package
+        shell: pwsh
+        run: |
+          mkdir out
+          copy target\release\victory.exe out\
+          copy victory.example.toml out\victory.toml
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: victory-windows-x64
+          path: out/
